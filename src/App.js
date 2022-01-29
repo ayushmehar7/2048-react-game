@@ -10,21 +10,19 @@ function App() {
   const RIGHT_ARROW = 39;
 
   const [data, setData] = useState([
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
-    [0, 0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
   ]);
-
+  const [score, setScore] = useState(0)
+  let highScore = localStorage.getItem("2048_hs") ? parseInt(localStorage.getItem("2048_hs")) : 0;
   const [gameOver, setGameOver] = useState(false);
   const initialize = () => {
 
     let newGrid = cloneDeep(data);
 
     addNumber(newGrid);
-    console.table(newGrid);
     addNumber(newGrid);
-    console.table(newGrid);
     setData(newGrid);
   };
 
@@ -37,8 +35,8 @@ function App() {
         break;
       }
 
-      let rand1 = Math.floor(Math.random() * 4);
-      let rand2 = Math.floor(Math.random() * 4);
+      let rand1 = Math.floor(Math.random() * 3);
+      let rand2 = Math.floor(Math.random() * 3);
       attempts++;
       if (newGrid[rand1][rand2] === 0) {
         newGrid[rand1][rand2] = Math.random() > 0.5 ? 2 : 4;
@@ -56,13 +54,13 @@ function App() {
   const swipeLeft = (dummy) => {
     let oldGrid = data;
     let newArray = cloneDeep(data);
-
-    for (let i = 0; i < 4; i++) {
+    let scoreIncrease = 0;
+    for (let i = 0; i < 3; i++) {
       let b = newArray[i];
       let slow = 0;
       let fast = 1;
-      while (slow < 4) {
-        if (fast === 4) {
+      while (slow < 3) {
+        if (fast === 3) {
           fast = slow + 1;
           slow++;
           continue;
@@ -78,6 +76,7 @@ function App() {
         } else if (b[slow] !== 0 && b[fast] !== 0) {
           if (b[slow] === b[fast]) {
             b[slow] = b[slow] + b[fast];
+            scoreIncrease+= 2*b[slow]
             b[fast] = 0;
             fast = slow + 1;
             slow++;
@@ -94,6 +93,7 @@ function App() {
     if (dummy) {
       return newArray;
     } else {
+      setScore(score+scoreIncrease)
       setData(newArray);
     }
   };
@@ -101,8 +101,8 @@ function App() {
   const swipeRight = (dummy) => {
     let oldData = data;
     let newArray = cloneDeep(data);
-
-    for (let i = 3; i >= 0; i--) {
+    let scoreIncrease = 0;
+    for (let i = 2; i >= 0; i--) {
       let b = newArray[i];
       let slow = b.length - 1;
       let fast = slow - 1;
@@ -123,6 +123,7 @@ function App() {
         } else if (b[slow] !== 0 && b[fast] !== 0) {
           if (b[slow] === b[fast]) {
             b[slow] = b[slow] + b[fast];
+            scoreIncrease+= 2*b[slow];
             b[fast] = 0;
             fast = slow - 1;
             slow--;
@@ -140,13 +141,15 @@ function App() {
       return newArray;
     } else {
       setData(newArray);
+      setScore(score+scoreIncrease)
     }
   };
 
   const swipeDown = (dummy) => {
     let b = cloneDeep(data);
+    let scoreIncrease = 0;
     let oldData = JSON.parse(JSON.stringify(data));
-    for (let i = 3; i >= 0; i--) {
+    for (let i = 2; i >= 0; i--) {
       let slow = b.length - 1;
       let fast = slow - 1;
       while (slow > 0) {
@@ -166,6 +169,7 @@ function App() {
         } else if (b[slow][i] !== 0 && b[fast][i] !== 0) {
           if (b[slow][i] === b[fast][i]) {
             b[slow][i] = b[slow][i] + b[fast][i];
+            scoreIncrease+= 2*b[slow][i]
             b[fast][i] = 0;
             fast = slow - 1;
             slow--;
@@ -182,18 +186,20 @@ function App() {
     if (dummy) {
       return b;
     } else {
+      setScore(score+scoreIncrease);
       setData(b);
     }
   };
 
   const swipeUp = (dummy) => {
     let b = cloneDeep(data);
+    let scoreIncrease = 0;
     let oldData = JSON.parse(JSON.stringify(data));
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 3; i++) {
       let slow = 0;
       let fast = 1;
-      while (slow < 4) {
-        if (fast === 4) {
+      while (slow < 3) {
+        if (fast === 3) {
           fast = slow + 1;
           slow++;
           continue;
@@ -209,6 +215,7 @@ function App() {
         } else if (b[slow][i] !== 0 && b[fast][i] !== 0) {
           if (b[slow][i] === b[fast][i]) {
             b[slow][i] = b[slow][i] + b[fast][i];
+            scoreIncrease+= 2*b[slow][i];
             b[fast][i] = 0;
             fast = slow + 1;
             slow++;
@@ -225,6 +232,7 @@ function App() {
     if (dummy) {
       return b;
     } else {
+      setScore(score+scoreIncrease);
       setData(b);
     }
   };
@@ -237,8 +245,6 @@ function App() {
     }
 
     let checker2 = swipeDown(true);
-    console.table(data);
-    console.table(checker2);
     if (JSON.stringify(data) !== JSON.stringify(checker2)) {
       return false;
     }
@@ -260,15 +266,19 @@ function App() {
   const resetGame = () => {
     setGameOver(false);
     const emptyGrid = [
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
     ];
 
     addNumber(emptyGrid);
     addNumber(emptyGrid);
     setData(emptyGrid);
+    if(score > highScore){
+      localStorage.setItem("2048_hs", score.toString());
+      highScore = score;
+    }
+    setScore(0);
   };
 
   const handleKeyDown = (event) => {
@@ -399,11 +409,26 @@ function App() {
         </div>
 
         <div style={{ width: "inherit" }}>
-          <p class="game-explanation">
-            <strong class="important">How to play:</strong> Use your{" "}
+          <p className="game-explanation">
+            <strong className="important">How to play:</strong> Use your{" "}
             <strong>arrow keys</strong> to move the tiles. When two tiles with
             the same number touch, they <strong>merge into one!</strong>
           </p>
+          <span style={{
+              fontFamily: "sans-serif",
+              flex: 1,
+              fontWeight: "700",
+              fontSize: 25,
+              color: "#776e65",
+              marginRight: "40px"
+            }} >Score: {score}</span>
+          <span style={{
+              fontFamily: "sans-serif",
+              flex: 1,
+              fontWeight: "700",
+              fontSize: 25,
+              color: "#776e65",
+            }} >High Score: {highScore}</span>
         </div>
       </div>
     </div>
